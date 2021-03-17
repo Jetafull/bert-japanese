@@ -5,15 +5,18 @@ import os
 import subprocess
 import sys
 from urllib.request import urlretrieve
+from pathlib import Path
 
-CURDIR = os.path.dirname(os.path.abspath(__file__))
-CONFIGPATH = os.path.join(CURDIR, os.pardir, 'config.ini')
+
+CURDIR = Path(__file__).parent.parent.absolute()
+WORKDIR = CURDIR.parent
+CONFIGPATH = CURDIR / "config.ini"
 config = configparser.ConfigParser()
 config.read(CONFIGPATH)
 
 FILEURL = config['DATA']['FILEURL']
-FILEPATH = config['DATA']['FILEPATH']
-EXTRACTDIR = config['DATA']['TEXTDIR']
+FILEPATH = WORKDIR.joinpath(config['DATA']['FILEPATH']).as_posix()
+EXTRACTDIR = WORKDIR.joinpath(config['DATA']['TEXTDIR']).as_posix()
 
 
 def reporthook(blocknum, blocksize, totalsize):
@@ -38,8 +41,7 @@ def download():
 
 def extract():
     subprocess.call(['python3', 
-                    os.path.join(CURDIR, os.pardir,
-                                 'wikiextractor', 'WikiExtractor.py'), 
+                    WORKDIR.joinpath('wikiextractor', 'WikiExtractor.py').as_posix(),
                     FILEPATH, "-o={}".format(EXTRACTDIR)])
 
 
